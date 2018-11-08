@@ -1,0 +1,79 @@
+<div class="action_panel" id="number_dial_pad">
+
+<div id="MyDialPad" class="container mt-2">
+  <div>
+    <h1 class="action_panel_header">Dial Number</h1>
+    <button type="button" class="close exit_button" aria-label="Close" onclick="window.location.href ='#/';">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <button
+        id="chooseCodeButton"
+        class="btn btn-outline-secondary dropdown-toggle"
+        type="button"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false">
+        <div class="d-inline-block">
+          <div class="d-flex align-items-center">
+            <img
+              id="selectedDialFlag"
+              src="/static/images/blank.gif"
+              align="left"
+              class="flag flag-us"/>
+            <div id="selectedDialCode" class="d-inline-block">
+              +1
+            </div>
+            &nbsp;
+          </div>
+        </div>
+      </button>
+      <div class="dropdown-menu">
+        <a
+          class="countryChoiceListItem dropdown-item"
+          style="font-family: Arial, sans-serif"
+          ng-repeat="countryCode in callableCountries"
+          ng-click="changeCountryCodeButtonOnClick(countryCode)">
+            <img
+              src="/static/images/blank.gif"
+              align="left"
+              class="flag flag-INTERPOLATE_OPEN[countryCode]INTERPOLATE_CLOSE"/>
+            &nbsp;&nbsp;&nbsp;
+            <span>
+              INTERPOLATE_OPEN[countryCodesToDialCodes[countryCode]]INTERPOLATE_CLOSE INTERPOLATE_OPEN[countryISOCodesToCountryNames[countryCode]]INTERPOLATE_CLOSE
+            </span>
+        </a>
+      </div>
+    </div>
+    <input class="form-control" ng-model=OutboundPhoneNumberHolder.value>
+    <div class="input-group-append">
+      <button id="outbound_dial_button" class="btn btn-success" data-ng-disabled="!OutboundPhoneNumberHolder.value" ng-click="dialPadEmitMakingOutboundCall()" type="button">Dial</button>
+    </div>
+  </div>
+
+      <div class="dialButtonGroup"  id="number_dial_pad_1_2_3">
+          <button id="dial_1" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('1'); playBeepOnClick()">1<br><div class="dialButtonLetters">&nbsp;&nbsp;&nbsp;</div></button> <!-- hack: added invisible characters to align button with the rest -->
+          <button id="dial_2" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('2'); playBeepOnClick()">2<br><div class="dialButtonLetters">ABC</div></button>
+          <button id="dial_3" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('3'); playBeepOnClick()">3<br><div class="dialButtonLetters">DEF</div></button>
+      </div>
+      <div class="dialButtonGroup" id="number_dial_pad_4_5_6">
+          <button id="dial_4" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('4'); playBeepOnClick()">4<br><div class="dialButtonLetters">GHI</div></button>
+          <button id="dial_5" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('5'); playBeepOnClick()">5<br><div class="dialButtonLetters">JKL</div></button>
+          <button id="dial_6" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('6'); playBeepOnClick()">6<br><div class="dialButtonLetters">MNO</div></button>
+      </div>
+      <div class="dialButtonGroup" id="number_dial_pad_7_8_9">
+          <button id="dial_7" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('7'); playBeepOnClick()">7<br><div class="dialButtonLetters">PQRS</div></button>
+          <button id="dial_8" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('8'); playBeepOnClick()">8<br><div class="dialButtonLetters">TUV</div></button>
+          <button id="dial_9" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('9'); playBeepOnClick()">9<br><div class="dialButtonLetters">WXYZ</div></button>
+      </div>
+      <div class="dialButtonGroup" id="number_dial_pad_0">
+          <button id="dial_*" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('*'); playBeepOnClick()">*<br><div class="dialButtonLetters">&nbsp;&nbsp;&nbsp;</div></button>
+          <button id="dial_0" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('0'); playBeepOnClick()">0<br><div class="dialButtonLetters">+</div></button> <!-- TODO: long press for appending "+" to number. -->
+          <button id="dial_#" class="dial_pad_button btn btn-outline-secondary" ng-click="appendToOutboundNumber('#'); playBeepOnClick()">#<br><div class="dialButtonLetters">&nbsp;&nbsp;&nbsp;</div></button>
+      </div>
+    </div>
+  </div>
+</div>

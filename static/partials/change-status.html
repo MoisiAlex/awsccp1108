@@ -1,0 +1,28 @@
+<div class="action_panel" id="changeStatusPage">
+    <div class = "container mt-2">
+      <button type="button" class="close exit_button" aria-label="Close" onclick="window.location.href ='#/';">
+        <span aria-hidden="true">&times;</span>
+      </button>
+        <div style="position:relative; top: 25px;">
+            <div class="list-group" style="position:relative; top: 25px;">
+                <button
+                    class="agentStateChoice list-group-item list-group-item-action"
+                    ng-repeat="state in agentStates"
+                    ng-click="setAgentStatus(state)"
+                    type="button">
+                        INTERPOLATE_OPEN[state.name]INTERPOLATE_CLOSE
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div style="position: relative; top: 250px; left: 25px">
+        <button
+          class="btn btn-primary" ng-click="logoutAgent()">
+          Log out, INTERPOLATE_OPEN[agentUsername]INTERPOLATE_CLOSE
+        </button>
+        <iframe ng-show="gotoLogout" id="logoutIframe" style="width:0;height:0;border:0; border:none;"></iframe>
+    </div>
+
+</div>

@@ -1,0 +1,74 @@
+<div class="action_panel container" id="settingsPage">
+    <h1 class="action_panel_header mt-2">Settings</h1>
+    <button type="button" class="close exit_button" aria-label="Close" onclick="window.location.href ='#/';">
+      <span aria-hidden="true">&times;</span>
+    </button>
+
+    <fieldset class="form-group">
+        <div class="row">
+          <legend class="col-form-label col-4 pt-0">Phone&nbsptype:</legend>
+          <div class="col-8">
+            <div class="form-check">
+                <input ng-click="saveSoftPhoneAgentConfig()" id="softphoneRadioButton"  type="radio" name="phoneType" value="Softphone" ng-model="phoneType"/>
+                <label ng-click="saveSoftPhoneAgentConfig()" style="font-family: Arial, sans-serif;">Softphone</label>
+            </div>
+            <div class="form-check">
+                <input id="hardphoneRadioButton" type="radio" name="phoneType" value="hardPhone" ng-model="phoneType"/>
+                <label ng-click="hardphoneLabelOnClick()" style="font-family: Arial, sans-serif;">Desk phone</label>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+    <div id="hardPhoneConfig" ng-show="phoneType === 'hardPhone'">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <button
+              id="chooseCodeButton"
+              class="btn btn-outline-secondary dropdown-toggle"
+              type="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false">
+              <div class="d-inline-block">
+                <div class="d-flex align-items-center">
+                  <img
+                    id="selectedDialFlag"
+                    src="/static/images/blank.gif"
+                    align="left"
+                    class="flag flag-us"/>
+                  <div id="selectedDialCode" class="d-inline-block">
+                    +1
+                  </div>
+                  &nbsp;
+                </div>
+              </div>
+            </button>
+            <div class="dropdown-menu">
+              <a
+                class="countryChoiceListItem dropdown-item"
+                style="font-family: Arial, sans-serif"
+                ng-repeat="countryCode in callableCountries"
+                ng-click="changeCountryCodeButtonOnClick(countryCode)">
+                  <img
+                    src="/static/images/blank.gif"
+                    align="left"
+                    class="flag flag-INTERPOLATE_OPEN[countryCode]INTERPOLATE_CLOSE"/>
+                  &nbsp;&nbsp;&nbsp;
+                  <span>
+                    INTERPOLATE_OPEN[countryCodesToDialCodes[countryCode]]INTERPOLATE_CLOSE INTERPOLATE_OPEN[countryISOCodesToCountryNames[countryCode]]INTERPOLATE_CLOSE
+                  </span>
+              </a>
+            </div>
+          </div>
+          <input name="hardPhoneNumber" ng-model="hardPhoneNumber" class="form-control">
+          <div class="input-group-append">
+            <button id="save_hard_phone_number_button" class="btn btn-primary" data-ng-disabled="!hardPhoneNumber" ng-click="setHardPhone(hardPhoneNumber)" type="button">Save</button>
+          </div>
+        </div>
+    </div>
+
+    <div style="position: absolute; top: 350px">
+        <button class="btn btn-primary" ng-click="downloadAgentLog()">Download logs</button>
+    </div>
+</div>

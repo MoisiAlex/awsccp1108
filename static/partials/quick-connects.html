@@ -1,0 +1,28 @@
+<div class="action_panel">
+    <div class="container mt-2">
+    <h1 class="action_panel_header">Quick Connects</h1>
+    <button type="button" class="close exit_button" aria-label="Close" onclick="window.location.href ='#/';">
+  <span aria-hidden="true">&times;</span>
+</button>
+
+
+    <div class="quickConnectListContainer" ng-show="!callConnected">
+        <div id="quickConnectsList" class="list-group">
+            <a
+                class="quickConnectOption list-group-item list-group-item-action"
+                ng-repeat="quickConnect in perm_agent.quickConnectsPhoneNumbers"
+                ng-click="emitCallQuickConnect(quickConnect)">
+                    INTERPOLATE_OPEN[quickConnect.name]INTERPOLATE_CLOSE
+            </a>
+        </div>
+    </div>
+
+
+    <div ng-show="callConnected" style="position:relative; top: 25px;">
+        <div id="allQuickConnectsList" class="list-group">
+            <a class="quickConnectOption list-group-item list-group-item-action" ng-repeat="quickConnect in perm_agent.quickConnectsPhoneNumbers.concat(perm_agent.quickConnectsQueues)" ng-click="emitCallQuickConnect(quickConnect)">INTERPOLATE_OPEN[quickConnect.name]INTERPOLATE_CLOSE</a>
+        </div>
+    </div>
+
+    </div>
+</div>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="PerficientCCPApp">
+<div hidden id="defaultCCPContainerDiv">
+</div>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Perficient CCP</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/flags.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+  integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+  crossorigin="anonymous">
+  <link rel="stylesheet" href="/static/css/vendor/bootstrap.min.css">
+  <script src="/static/js/amazon-connect-streams/amazon-connect-v1.2.0-26-g978b2a4.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script>
+  <script src="/static/js/PerficientCCPApp.js"></script>
+  <script src="/static/js/controllers/OutboundPhoneNumberHolder.js"></script>
+  <script src="/static/js/controllers/CountryCodesHolder.js"></script>
+  <script src="/static/js/amazon-connect-default-ccp/DefaultCCPInit.js"></script>
+  <script src="/static/js/controllers/DialPadController.js"></script>
+  <script src="/static/js/controllers/CallController.js"></script>
+  <script src="/static/js/controllers/AgentStateController.js"></script>
+  <script src="/static/js/controllers/AgentCCPUtilsController.js"></script>
+  <script src="/static/js/controllers/CCPContainerController.js"></script>
+  <script src="/static/js/controllers/QuickConnectsController.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+  crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+  integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+  crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+  integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+  crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+<div class="flex-container">
+            <img src="logo.png">
+            <h1>Amazon Connect CCP </h1>
+        </div>
+ 
+    <div id="gridDiv" class="grid-container">
+        <div id="containerDiv" class="ccp" >
+
+  <div id="ccpAppContainerDiv" ng-controller="CCPContainerController">
+    <div ng-controller="CallController">
+      <div id="topMenuDiv">
+        <div class="container topMenuContainer">
+          <div onclick="window.location.href ='#/';" id="home_button">
+            <img id="amazon-connect-logo" src="/static/images/amazon-connect-logo.svg" />
+          </div>
+          <div ng-show="isAgentLoggedIn()" onclick="window.location.href = '#/change-status'" id="change_status_button">
+            Change&nbsp;status
+          </div>
+          <div ng-show="isAgentLoggedIn()" onclick="window.location.href ='#/settings';" id="settings_button">
+            <i class="fas fa-cog"></i>
+          </div>
+        </div>
+      </div>
+
+      <div ng-view>
+      </div>
+
+      <div class="callController">
+        <div class="stateContainer">
+          <!-- Customer -->
+          <div
+            class="statePanel container"
+            ng-class="{'grey-bg': agentState === 'AfterCallWork' || agentState === 'Offline', 'orange-bg': isCustomerOnHold(), 'yellow-bg': agentState === 'MissedCallAgent', 'green-bg': agentState === 'Connected', 'halfLength': connectedThirdParty(), 'red-bg': isAgentInErrorState()}"
+            ng-hide="connectedThirdParty() && !isCustomerCallActive()">
+            <div class="row pt-2">
+              <div
+                ng-show="isAgentLoggedIn()"
+                id="stateHeaderDiv"
+                class="stateLabel col-8">
+                INTERPOLATE_OPEN[customerCallStatus]INTERPOLATE_CLOSE
+              </div>
+              <div class="col-4 connectionActionButtonContainer" style="text-align: right;" ng-show="connectedThirdParty()">
+                <div
+                  class="connectionActionButton"
+                  ng-show="isAllHold()"
+                  ng-click="resumeCustomerCall()"
+                  ng-class="{'disabled': disableCallButtons}">
+                  <i class="fas fa-play"></i>
+                </div>
+                <div
+                  class="connectionActionButton"
+                  ng-show="areCallsJoined()"
+                  ng-click="holdCustomerCall()"
+                  ng-class="{'disabled': disableCallButtons}">
+                  <i class="fas fa-pause"></i>
+                </div>
+                <div
+                  class="connectionActionButton"
+                  ng-click="hangUpCustomer()"
+                  ng-class="{'disabled': disableCallButtons}">
+                  <i class="fas fa-times"></i>
+                </div>
+              </div>
+            </div>
+            <div class="callInfo row">
+              <div class="leftCallInfo col-6">
+                <div
+                  ng-show="(callConnecting || callConnected) && !connectedThirdParty()">
+                  With
+                </div>
+                <div ng-show="callConnecting || callConnected">
+                  <text ng-model="OutboundPhoneNumberHolder.value">
+                    INTERPOLATE_OPEN[customerPhoneNumber]INTERPOLATE_CLOSE
+                  </text>
+                </div>
+              </div>
+              <div class="rightCallInfo col-6">
+                <div
+                  ng-show="(callConnecting || callConnected || showAfterWorkCallTimer) && !connectedThirdParty()"
+                  >
+                  Time elapsed
+                </div>
+                <div ng-show="callConnecting || callConnected">
+                  INTERPOLATE_OPEN[customerTimerCounterSeconds | formatTimer]INTERPOLATE_CLOSE
+                </div>
+                <div ng-show="showAfterWorkCallTimer && agentState != 'Offline'">
+                  INTERPOLATE_OPEN[afterCallWorkTimerCounterSeconds | formatTimer]INTERPOLATE_CLOSE
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Third party -->
+          <div
+            ng-show="connectedThirdParty()"
+            class="statePanel container"
+            ng-class="{'orange-bg': isThirdPartyOnHold(), 'green-bg': thirdPartyCallStatus === 'Connected' || thirdPartyCallStatus === 'Joined', 'halfLength': connectedThirdParty() && isCustomerCallActive()}">
+            <div class="row pt-2">
+              <div id="stateHeaderDiv" class="stateLabel col-6">
+                INTERPOLATE_OPEN[thirdPartyCallStatus]INTERPOLATE_CLOSE
+              </div>
+              <div class="col-6 connectionActionButtonContainer" style="text-align: right;" ng-show="connectedThirdParty()">
+                <div
+                  class="connectionActionButton"
+                  ng-show="isAllHold() || (!isCustomerCallActive() && isThirdPartyOnHold())"
+                  ng-click="resumeThirdPartyCall()"
+                  ng-class="{'disabled': disableCallButtons}">
+                  <i class="fas fa-play"></i>
+                </div>
+                <div
+                  class="connectionActionButton"
+                  ng-show="areCallsJoined() || (!isCustomerCallActive() && !isThirdPartyOnHold())"
+                  ng-click="holdThirdPartyCall()"
+                  ng-class="{'disabled': disableCallButtons}">
+                  <i class="fas fa-pause"></i>
+                </div>
+                <div
+                  class="connectionActionButton"
+                  ng-click="hangUpThirdParty()"
+                  ng-class="{'disabled': disableCallButtons}">
+                  <i class="fas fa-times"></i>
+                </div>
+              </div>
+            </div>
+            <div class="callInfo row" ng-show="callConnecting || callConnected">
+              <div class="leftCallInfo col-6">
+                <div ng-hide="connectedThirdParty() && isCustomerCallActive()">
+                  With
+                </div>
+                <div>
+                  INTERPOLATE_OPEN[thirdPartyPhoneNumber]INTERPOLATE_CLOSE
+                </div>
+              </div>
+              <div class="rightCallInfo col-6">
+                <div ng-hide="connectedThirdParty() && isCustomerCallActive()">
+                  Time elapsed
+                </div>
+                <div>
+                  INTERPOLATE_OPEN[thirdPartyTimerCounterSeconds | formatTimer]INTERPOLATE_CLOSE
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div ng-show="callConnected" class="callControlContainer">
+            <div class="container filler">
+              <div class="inCallButtons">
+                <div
+                  class="col-6 buttonContainer"
+                  ng-hide="connectedThirdParty()">
+                  <button
+                    class="btn btn-outline-secondary"
+                    onclick="window.location.href='#/dial-pad';">
+                    Dial number
+                  </button>
+                </div>
+                <div
+                  class="col-6 buttonContainer"
+                  ng-show="isCustomerCallActive() && connectedThirdParty() && !isAllHold() && !areCallsJoined()">
+                  <button
+                    class="btn btn-outline-secondary"
+                    onclick="window.location.href='#/dial-pad';">
+                    Dial number</button>
+                  </div>
+                  <div
+                    class="col-6 buttonContainer"
+                    ng-show="isCustomerCallActive() && connectedThirdParty() && !areCallsJoined() && !isAllHold()">
+                    <button
+                      class="btn btn-outline-secondary"
+                      ng-click="emitJoinCalls()"
+                      ng-disabled="disableCallButtons">
+                      Join
+                    </button>
+                  </div>
+                <div
+                  class="col-6 buttonContainer"
+                  ng-show="isCustomerCallActive() && connectedThirdParty() && !areCallsJoined() && !isAllHold()">
+
+                  <button
+                    class="btn btn-outline-secondary"
+                    ng-click="emitSwapActiveCalls()"
+                    ng-disabled="disableCallButtons">
+                    Swap
+                  </button>
+                </div>
+                <div
+                  class="col-6 buttonContainer"
+                  ng-hide="connectedThirdParty()">
+                  <button
+                    class="btn btn-outline-secondary"
+                    ng-click="emitHoldOrResumeCall()"
+                    ng-disabled="disableCallButtons">
+                    INTERPOLATE_OPEN[holdCustomerButtonActionLabel]INTERPOLATE_CLOSE
+                  </button>
+                </div>
+                <div
+                  class="col-6 buttonContainer"
+                  ng-hide="connectedThirdParty()">
+                  <button
+                    class="btn btn-outline-secondary"
+                    onclick="window.location.href='#/quick-connects';">
+                    Transfer
+                  </button>
+                </div>
+                <div
+                  class="col-6 buttonContainer"
+                  ng-show="connectedThirdParty() && isCustomerCallActive()">
+                  <button
+                    class="btn btn-outline-secondary"
+                    ng-click="emitAllHoldOrAllResume()">
+                    INTERPOLATE_OPEN[holdAllButtonActionLabel]INTERPOLATE_CLOSE
+                  </button>
+                </div>
+                <div
+                  class="col-6 buttonContainer"
+                  ng-hide="isDeskphoneEnabled()">
+                  <button
+                    class="btn btn-outline-secondary"
+                    ng-click="emitMuteOrUnmute()"
+                    ng-disabled="disableCallButtons">
+                    INTERPOLATE_OPEN[muteButtonActionLabel]INTERPOLATE_CLOSE
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bottomButtons container buttonPanel"
+            ng-show="isAgentLoggedIn()">
+            <!-- Dial button -->
+            <div
+              class="buttonContainer col-6 pr-1"
+              ng-show="!callConnecting && !callIsInbound && !callConnected && !isAgentInErrorState()">
+              <button
+                type="button"
+                id="dial_pad_button"
+                class="btn btn-primary"
+                onclick="window.location.href='#/dial-pad';">
+                Dial number
+              </button>
+            </div>
+            <!-- Quick Connects button -->
+            <div
+              class="buttonContainer col-6 pl-1"
+              ng-show="!callConnecting && !callIsInbound && !callConnected && !isAgentInErrorState()">
+              <button
+                class="btn btn-primary"
+                id="quick_connects_button"
+                onclick="window.location.href='#/quick-connects';">
+                Quick connects
+              </button>
+            </div>
+            <!-- End call button -->
+            <div class="col-12 buttonContainer" ng-show="(callConnecting || callConnected) && !callIsInbound">
+              <button
+                type="button"
+                id="dial_pad_button"
+                class="btn btn-danger btn-block"
+                ng-click="emitEndCall()"
+                ng-disabled="disableCallButtons"
+                ng-hide = "connectedThirdParty() && customerCallStatus != 'Disconnected'">
+                End Call
+              </button>
+              <button
+                type="button"
+                id="dial_pad_button"
+                class="btn btn-danger btn-block"
+                ng-click="emitEndCall()"
+                ng-disabled="disableCallButtons"
+                ng-show = "connectedThirdParty() && customerCallStatus != 'Disconnected'">
+                Leave Call
+              </button>
+            </div>
+
+            <!-- Set to available-->
+            <div
+              class="col-12 buttonContainer"
+              ng-show="agentState === 'AfterCallWork' || agentState === 'Offline' || isAgentInErrorState() || agentState === 'MissedCallAgent'" >
+              <button
+                type="button"
+                id="dial_pad_button"
+                class="btn btn-primary btn-block"
+                ng-click="setAgentAvailableOnFrontPage()">
+                Set to Available
+              </button>
+            </div>
+
+            <div class="col-6 buttonContainer" ng-show="callIsInbound && agentState !== 'MissedCallAgent' && !isDeskphoneEnabled()">
+              <button class="btn btn-success" ng-click="emitAnswerCall()">
+                Accept Call
+              </button>
+            </div>
+            <div class="col-6 buttonContainer" ng-show="callIsInbound && agentState !== 'MissedCallAgent' && !isDeskphoneEnabled()">
+              <button class="btn btn-danger" ng-click="emitEndCall()">
+                Reject Call
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="bottomButtons container buttonPanel"
+            ng-show="!isAgentLoggedIn()">
+            <!-- Dial button -->
+            <div
+              class="buttonContainer col-6 pr-1">
+              <button
+                type="button"
+                id="dial_pad_button"
+                class="btn btn-primary"
+                ng-click="openLoginPage()">
+                Log in
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <iframe id="loginIframe" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+       </div>
+      
+        <fieldset class ="contactAttributes attributesBorder">
+            <legend class="attributesBorder legendSettings">Contact Details</legend>    
+            <table id="attributesTable" class="attributesTable">
+                <thead>
+                    <tr>
+                        <th>Attribute Name </th>
+                        <th>Attribute Value </th>
+                    </tr>
+                </thead>
+              <tbody>
+                    <tr><td></td><td></td></tr>
+                  <!-- Contact attributes will go here-->
+              </tbody>
+
+            </table>
+            
+ 
+        </fieldset>
+     
+        
+        <fieldset class="logMessages attributesBorder">
+            <legend class= "attributesBorder legendSettings">Log Messages</legend>
+                <!-- Toggle log messages display -->
+               <div id="hiddenAttributes">
+                  <input type="button" id="showAttributes" value="Show Log Messages">
+               </div>
+               <div id="visibleAttributes" style="display:none;">
+                  <input type="button" id="hideAttributes" value="Hide Log Messages">
+            
+                <div class="logMsgsContainer">
+                    <div id="logMsgs">
+                        <!-- Log messages will go here -->
+                    </div>
+                </div>
+            </div>  
+        </fieldset>
+    </div>   
+
+</body>
+
+</html>
